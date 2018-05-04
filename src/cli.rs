@@ -23,6 +23,8 @@ pub struct Opt {
     skip_tuples: bool,
     #[structopt(long = "skip-timing")]
     skip_timing: bool,
+    #[structopt(long = "stats")]
+    stats: bool,
     #[structopt(short = "v")]
     verbose: bool,
     #[structopt(short = "o", long = "output")]
@@ -40,10 +42,10 @@ pub fn main(opt: Opt) -> Result<(), Error> {
             let tables = &mut intern::InternerTables::new();
 
             let result: Result<(Duration, Output), Error> = do catch {
-                let verbose = opt.verbose;
+                let detailed_data = opt.verbose | opt.stats;
                 let algorithm = opt.algorithm;
                 let all_facts = tab_delim::load_tab_delimited_facts(tables, &Path::new(&facts_dir))?;
-                timed(|| Output::compute(all_facts, algorithm, verbose))
+                timed(|| Output::compute(all_facts, algorithm, detailed_data))
             };
 
             match result {
@@ -84,4 +86,9 @@ fn timed<T>(op: impl FnOnce() -> T) -> (Duration, T) {
     let output = op();
     let duration = start.elapsed();
     (duration, output)
+}
+
+fn dump_stats(output: &Output) {
+    for (r1, r2) in output.all_subsets() {
+    }
 }

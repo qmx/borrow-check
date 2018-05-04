@@ -114,4 +114,14 @@ impl Output {
             None => Cow::Owned(BTreeMap::default()),
         }
     }
+
+    crate fn all_subsets(&self) -> impl Iterator<Item = (Region, Region)> + '_ {
+        assert!(self.dump_enabled);
+        self.subset
+            .values()
+            .flat_map(move |map| {
+                map.iter()
+                    .flat_map(|r1, r2s| r2s.iter().map(move |r2| (r1, r2)))
+            })
+    }
 }
